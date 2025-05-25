@@ -1,0 +1,25 @@
+Shell shortcuts
+
+$ alias b-dae="bitcoind -datadir=$HOME/bitcoindir"
+$ alias b-cli="bitcoin-cli -datadir=$HOME/bitcoindir"
+$ alias e1-dae="elementsd -datadir=$HOME/elementsdir1"
+$ alias e1-cli="elements-cli -datadir=$HOME/elementsdir1"
+$ alias e2-dae="elementsd -datadir=$HOME/elementsdir2"
+$ alias e2-cli="elements-cli -datadir=$HOME/elementsdir2"
+$ alias e1-qt="elements-qt -datadir=$HOME/elementsdir1"
+
+Full list of available RPC commands: https://elementsproject.org/en/doc/23.2.1/rpc/
+
+Block explorers:
+https://blockstream.info/liquid/tx/87420c6147f03416f8c6ab63f40c2acce5d1134ce716ba25d01e25cbbc08312c
+https://liquid.network/tx/87420c6147f03416f8c6ab63f40c2acce5d1134ce716ba25d01e25cbbc08312c
+
+https://docs.liquid.net/docs/blockstream-liquid-asset-registry
+
+https://liquidtestnet.com/faucet
+
+
+Faucet: https://liquidtestnet.com/
+Asset Issuing Tool: http://assets.staging.blockstream.com/
+Domain: https://proof.liquidtestnet.0bf98fe27ca358b8d1c7.net
+

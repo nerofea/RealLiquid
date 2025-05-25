@@ -1,0 +1,29 @@
+e1-cli getwalletinfo
+
+e1-cli dumpassetlabels
+
+ISSUE=$(e1-cli issueasset 100 1)
+
+ASSET=$(echo $ISSUE | jq -r '.asset')
+TOKEN=$(echo $ISSUE | jq -r '.token')
+ITXID=$(echo $ISSUE | jq -r '.txid')
+IVIN=$(echo $ISSUE | jq -r '.vin')
+
+echo $ASSET
+
+e1-cli listissuances
+
+e1-cli stop
+
+e1-dae -assetdir=$ASSET:demoasset
+e1-cli listissuances
+
+e1-cli generatetoaddress 1 $ADDRGEN1
+
+E2DEMOADD=$(e2-cli getnewaddress)
+e1-cli sendtoaddress $E2DEMOADD 10 "" "" false false 1 UNSET false demoasset
+e1-cli generatetoaddress 1 $ADDRGEN1
+
+e1-cli getwalletinfo
+e2-cli getwalletinfo
+

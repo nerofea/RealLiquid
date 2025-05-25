@@ -1,0 +1,33 @@
+ADDR=$(e2-cli getnewaddress)
+echo $ADDR
+
+e2-cli getaddressinfo $ADDR
+
+TXID=$(e2-cli sendtoaddress $ADDR 1)
+
+e1-cli getrawmempool
+e2-cli getrawmempool
+e1-cli getblockcount
+e2-cli getblockcount
+
+e2-cli generatetoaddress 1 $ADDRGEN2
+
+e1-cli getrawmempool
+e2-cli getrawmempool
+
+e1-cli getblockcount
+e2-cli getblockcount
+
+e2-cli gettransaction $TXID
+
+e1-cli gettransaction $TXID
+
+e1-cli getrawtransaction $TXID 1
+
+e1-cli importaddress $ADDR
+e1-cli gettransaction $TXID true
+
+e1-cli importblindingkey $ADDR $(e2-cli dumpblindingkey $ADDR)
+
+e1-cli gettransaction $TXID true
+

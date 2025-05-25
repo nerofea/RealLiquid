@@ -1,0 +1,46 @@
+podman run -it --privileged --rm --name functionaries quay.io/rockylinux/rockylinux:9 /bin/bash
+
+cd
+yum -y install mc git rust cargo systemd-devel which psmisc procps-ng
+git clone https://github.com/Blockstream/liquid-functionary.git
+cd liquid-functionary
+cargo build -j32
+cd
+
+curl -L https://bitcoincore.org/bin/bitcoin-core-25.0/bitcoin-25.0-aarch64-linux-gnu.tar.gz | tar -zx -C /usr/local --strip-components=1
+curl -L https://github.com/ElementsProject/elements/releases/download/elements-23.2.7/elements-23.2.7-aarch64-linux-gnu.tar.gz | tar -zx -C /usr/local --strip-components=1
+
+git clone https://github.com/psgreco/liquid-functionary-demo-configs.git
+cd liquid-functionary-demo-configs
+./runfunc.sh
+alias b1-cli="bitcoin-cli -datadir=$PWD/01/bitcoin"
+alias e1-cli="elements-cli -datadir=$PWD/01/elements"
+alias b2-cli="bitcoin-cli -datadir=$PWD/02/bitcoin"
+alias e2-cli="elements-cli -datadir=$PWD/02/elements"
+
+b1-cli -named createwallet wallet_name="" descriptors=false
+b1-cli getbalances
+b1-cli importprivkey cMahea7zqjxrtgAbB7LSGbcQUr1uX1ojuat9jZodMN87JcbXMTcA
+b1-cli getbalances
+
+e1-cli getchaintips
+
+e1-cli createwallet ""
+e1-cli getpeginaddress
+
+b1-cli sendtoaddress 2NFdLrD5a2muXKPVNF5dUtUeMD1iV3bpbiZ 10
+./genblocks.sh 110
+
+b1-cli gettransaction 84e392012c16eca28b9440876d5dd8db5c8ad2d74a9d8584816db3695ba4be75
+
+b1-cli gettxoutproof '["84e392012c16eca28b9440876d5dd8db5c8ad2d74a9d8584816db3695ba4be75"]'
+
+e1-cli claimpegin <raw> <proof> <claim_script>
+
+e1-cli claimpegin 020000000179844f138275ff1e61c8e08be291f7598003a554837802c106d95adbfc42466c000000006a47304402203389d856e4bd94dd5cba2819ae8d34784011c2b9a98311345c53d573e3ab3ff102201e18757ab1cc1c6355413728c3472ef536e79215b6ea09ebb80d77e29c0772e901210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798fdffffff02acd16aee0000000017a914cb4c30203ba397dcd0948071188289723d54a37d8700ca9a3b0000000017a914f581a53eedb5cda15687316f344519a177614ae68766000000 000000206393d49513a091fe3a83d14bed279291072360006c00281918c7a5e4c202be49e93d1b51f1e793c0173a555b13bfc68f6a98f149e164d5f7f50eeafa632ab569fa90e764ffff7f20000000000200000002be71d5a0ca4912e5d8c12c0052782e88d79578411d64a759f55b8ff4c3055df875bea45b69b36d8184859d4ad7d28a5cdbd85d6d8740948ba2ec162c0192e3840105 0014342dab9e93e5c0928a098d0c234fc2e6b6aa7e73
+
+e1-cli getbalances
+
+
+cd ..
+
