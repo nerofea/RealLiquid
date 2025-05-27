@@ -5,6 +5,15 @@ trait ToVecF32 {
     fn to_vec_f32(&self) -> Vec<f32>;
 }
 
+impl ToVec32 for MessageTile {
+    fn to_vec_f32(&self) -> Vec<f32> { 
+        // flatten the data into f32 numerical vectors, preparation for GPU inputs
+        let Q: Vec<f32> = flatten_tile_data(&Q_tiles);  //Message tile
+        let K: Vec<f32> = flatten_tile_data(&K_tiles);  // Policy tile
+        let V: Vec<f32> = flatten_tile_data(&V_tiles); // Signer tile
+    }
+}
+
 pub fn launch_flash_kernel<T: ToVecF32>(
     Q_tiles: &[Vec<T>],
     K_tiles: &[Vec<T>],
