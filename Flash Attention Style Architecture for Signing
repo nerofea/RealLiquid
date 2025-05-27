@@ -1,0 +1,2 @@
+We are gonna replace the signer logic, policy evaluation and approval
+logic in the Liquid GDK with tiled and block-based parallelism.

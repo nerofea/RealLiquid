@@ -1,0 +1,128 @@
+We are building a RWA (real world asset) token transfer protocol. 
+
+We have downloaded Elements and the BTC cli. Currently 2gb of ledger are downloading. 
+
+The Elements node is currently running.
+
+We have an Elements wallet address, which is connected to the logal regtest network where we have minted 50 L-BTC.  It was reward for creating addresses. 
+
+We need to issue some real world tokens for Eagle Hills and Plovdiv Alliance. 
+
+We are pegging L-BTC against the Bitcoin against L-BTC and then our RWA against the L-BTC.  
+
+We just sent ourselves 400 000 Satoshis via the Faucet.
+
+Even though our node is running, we need to start the Daemon properly, so that we can check the balance of our wallet and start calling on the wallet for issuing an asset and transferring an asset via a coordination.
+
+While I figure out how to call the localregtest properly, because I am a little lost in all of the docs, I will first build out my peg in logic = which by the way, seems to be a part of the Liquid Federation. 
+
+So we are differentiating two forms of logic here
+
+1) Peg-in Logic and Peg-out Logic (Liquid Federation smart contract)
+2) Settlement Oracle (the settlement against which the RWA will be transferred)
+
+# getpeginaddress = During onboarding of new company user (fund owner)
+
+We seemed to have deleted the wallet address and keys by an accident so we need to generate new one as not only the address is important but also pub keys. This will allow us to interact with it even if we clear cache and clear the address data. 
+
+In Liquid, we have a wallet, that can hold address pubkeys. 
+Our wallet address: 070fba86ba269142317acd26981adfc78d2de01c45f6fff773f5d8a768edb339 is the block hash of our address creation. 
+
+bcrt1qcrpjfjyu5fx4qzd8zcc7mj3mum2zvak50287pm is the wallet address, it was created for the  purpose of receiving tokens from the faucet. It is a SegWit address (P2SH) (not a Native SegWit address, not bech32).
+
+033ac54265877391692bb41152cdcd224bae16afd5f2b4536db2065e9d2a86a06a is the pubkey. This is what we save in our .env file (for the purpose of the prototype), in order to interact and sign the settlement oracle, the coordination call, and the transfer. 
+
+"parent_desc": "wpkh([7022a48d/84'/1'/0']tpubDC7c5kMUa6qFHSJiLMHywyQAXjvcE43rYh2zrEvEJwiQZLRwmoYP2VZirSF6CYupMM9NW8uBZDH1TninvsoQMavHQPnFMZ6ptLNrBabb9WZ/0/*)#w5rteq2n",
+
+wpkg( ) Wallet script type = Native SegWit (Pay to Witness PubKey Hash)
+7022a48d/84'/1'/0'
+7022a48d = your wallet fingerprint derived from the masterkey
+84'/1'/0' =  BIP84 path
+84' Native SegWit (BIP84) 
+1' Testnet (mainnet is 0')
+0' Account 0
+The stuff after tpub including tpub is the XPUB = testnet extended public key
+/0/* This path generates receiving addresses (/1/* would be change addresses)
+The tpub can be used for watch only, we can import the address into other wallets to track balances or generate receiving addresses without access to private keys. 
+
+nerofea@DESKTOP-GVIP9TT:/mnt/d/btcstuff/elements$ ./src/elements-cli -conf=$HOME/.elements/elements.conf getaddressinfo bcrt1qcrpjfjyu5fx4qzd8zcc7mj3mum2zvak50287pm
+{
+  "address": "bcrt1qcrpjfjyu5fx4qzd8zcc7mj3mum2zvak50287pm",
+  "scriptPubKey": "0014c0c324c89ca24d5009a71631edca3be6d42676d4",
+  "ismine": true,
+  "solvable": true,
+  "desc": "wpkh([7022a48d/84'/1'/0'/0/0]033ac54265877391692bb41152cdcd224bae16afd5f2b4536db2065e9d2a86a06a)#w769rj5p",
+  "parent_desc": "wpkh([7022a48d/84'/1'/0']tpubDC7c5kMUa6qFHSJiLMHywyQAXjvcE43rYh2zrEvEJwiQZLRwmoYP2VZirSF6CYupMM9NW8uBZDH1TninvsoQMavHQPnFMZ6ptLNrBabb9WZ/0/*)#w5rteq2n",
+  "iswatchonly": false,
+  "isscript": false,
+  "iswitness": true,
+  "witness_version": 0,
+  "witness_program": "c0c324c89ca24d5009a71631edca3be6d42676d4",
+  "pubkey": "033ac54265877391692bb41152cdcd224bae16afd5f2b4536db2065e9d2a86a06a",
+  "confidential": "bcrt1qqdudqgjmqznkcfwah20ff8sawu0ahcmt3wuhse0rzrccnmy9uejdtsxrynyfegjd2qy6w933ah9rhek5yemdgcvf5ykurfavk",
+  "confidential_key": "",
+  "unconfidential": "bcrt1qcrpjfjyu5fx4qzd8zcc7mj3mum2zvak50287pm",
+  "ischange": false,
+  "timestamp": 1748170638,
+  "hdkeypath": "m/84'/1'/0'/0/0",
+  "hdseedid": "0000000000000000000000000000000000000000",
+  "hdmasterfingerprint": "7022a48d",
+  "labels": [
+    ""
+  ]
+}
+
+We will see our fund users and influencers sign their first contract, and RWA token transfer, as well as see a RWA token being created! 
+
+We are going to create a FlashAttention-style architecture as signing logic for multi-sig contracts on Liquid on Bitcoin. 
+
+We are going to first pick out our signers which are in C++ language, and we are going to create a  Foreign Function Interface (FFI) which allows us to code in one language, Rust in our case so that we can call in another (C++). 
+
+I understand cpp as the main body file, and hpp as a header file, both are C++.
+
+I understand that we would need each of the consts to be wrapped in a function as an external C which is then compiled into Rust so that we can get a shared object file .so or a Dynamic Link Library file .dll , they are shared libraries that Rust can link to. C++ owns the logic.  We would use Cmake to compile it to .so file. 
+
+hpp files aren't needed in the library because they are already mentioned in the cpp files. 
+
+Remember, that signer.cpp does seed parsing, xpub derivation (derivation of testnet extended public key), ECDSA/Schnorr signing, credential binding key handling
+
+From the ga-tx.cpp we do not need anything that handles wallet UX and transaction building. Our focus is signing and hashing. 
+
+Let's clarify the FlashAttention-style architecture, because it is a mathematical formula that needs to be programmed in both Cuda and Rust... so lets clarify the terms first. 
+
+Q (Query) =  User Request: spend/approve/token movement
+K (Key)  = Stored policies or required conditions
+V (Value) = Actual action to execute if approved
+Softmax(QKT)V = Weighted approval logic -> applies correct action
+Output o = Approved signed messages or hashes
+diag, exp, logsum = Normalization, stability in approvals
+
+Query = requested action
+Keys = policy anchors or signer configs
+Value = executable scripts or instructions
+Output = the valid operation approved
+
+We are using FlashAttention Block Tiling for Secure Batch Evaluation
+In GDK signer logic, we might have to check multiple signers, policies or approval thresholds, and evaluate signature proofs, ZK conditions, session keys, or rate limits
+
+We are going to use FlashAttention to tile the verification, i.e load a chunk of signer rules into fast memory (e.g WASM or on-chain logic), we are goign to stream over approvals just like attention streams over key blocks and all of this will reduce memory use and keep things parallel and fast which is critical if we are running inside mobile, ZK circuits, or low-latency embedded systems. 
+
+Typically, we think of AI as attention for tokens but here we need to think in terms of "attention for permissions".
+
+Every user action is a query. 
+Each signer, guard or threshold rule is a key. 
+The system computes weights or boolean gates (approvals)
+Final output is the safe signed action, computer efficiently. 
+
+This approach that we are doing is perfect for MPC multisigs, delegated approvals, and custom rust/noir based auth kernels for embedded ZK or AI models. 
+
+Our next step now, is to load signer chunks rather than querying every policy at once. 
+Then we evaluate them in blocks, reduce memory and parallelize decisions. 
+
+This block-wise design will fit naturally into limited-memory constraints.
+
+We are implementing matmul_tile(Q_tile, K_tile.T) using shared memory ( I believe this happens within a block) 
+
+Because we are running massively parallel computations on the GPU, which is much faster than the CPU for tasks like matrix multiplications, softmax and batch signing, we need to use CUDA because it gives low-level high performance access to NVIDIA GPUs for parallel computing. 
+Because of our CUDA low-level access to NVIDIA GPU for parallel computing, we need to use Rust to orchestrate CUDA kernels by managing memory, launching GPU code and ensuring data integrity between CPU and GPU. 
+We use cust in Rust to interface with CUDA allowing us to write, launch and manage GPU kernels directly from safe Rust code (cust has FFI under the hood).

@@ -1,0 +1,18 @@
+// Cmakelists.txt
+cmake_minimum_required(VERSION 3.15)
+project(gdk_ffi)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+add_library(gdk_ffi SHARED
+    ffi_c.cpp
+    signer.cpp
+    ga_tx.cpp
+    session.cpp
+)
+
+target_include_directories(gdk_ffi PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
