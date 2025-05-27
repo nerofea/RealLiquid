@@ -1,5 +1,65 @@
 // Tile-based policy + attention simulator
 
+mod rwa_registry;
+use rwa_registry::RWAAsset;
+
+// We need to load all registry types incl RWAAsset logic, 
+pub struct MessageTile {
+
+}
+
+impl From<&RWAAsset> for MessageTile {
+    fn from(rwa: &RWAAsset) -> Self {
+        Self {
+            request_id: format!("req_{}", rwa.id),
+            rwa_id: rwa.id.clone(),
+            beneficiary_id:"user123".to_string(),
+            token: "USDC".to_string(),
+            intent: "stake".to_string(),
+            amount: rwa.max_supply as f32,
+        }
+    }
+}
+
+impl From<&Influencer> for MessageTile {
+    fn from(rwa: &RWAAsset) -> Self {
+        Self {
+            request_id: format!("req_{}", rwa.id),
+            rwa_id: rwa.id.clone(),
+            beneficiary_id:"user123".to_string(),
+            token: "USDC".to_string(),
+            intent: "stake".to_string(),
+            amount: rwa.max_supply as f32,
+        }
+    }
+}
+
+impl From<&LoanContract> for MessageTile {
+    fn from(rwa: &RWAAsset) -> Self {
+        Self {
+            request_id: format!("req_{}", rwa.id),
+            rwa_id: rwa.id.clone(),
+            beneficiary_id:"user123".to_string(),
+            token: "USDC".to_string(),
+            intent: "stake".to_string(),
+            amount: rwa.max_supply as f32,
+        }
+    }
+}
+
+impl From<&Fund> for MessageTile {
+    fn from(rwa: &RWAAsset) -> Self {
+        Self {
+            request_id: format!("req_{}", rwa.id),
+            rwa_id: rwa.id.clone(),
+            beneficiary_id:"user123".to_string(),
+            token: "USDC".to_string(),
+            intent: "stake".to_string(),
+            amount: rwa.max_supply as f32,
+        }
+    }
+}
+
 pub struct Request {
     pub id: String, 
     pub action: String, 
@@ -17,7 +77,7 @@ pub struct ApprovalResult {
     pub reason: Option<String>,
 }
 
-#[derive(Debug, CLone)]
+#[derive(Debug, Clone)]
 pub struct SignatureTile {
     pub data: Vec<Vec<f32>>,
     pub rows: usize,
@@ -69,7 +129,7 @@ pub fn evaluate_requests(
         .collect()
 }
 
-fn get_policy_mask(Qi: &MessageTile, Kj: &PolicyTile) -> Vec<Vec<u8>> {
+fn get_policy_mask(Q: &MessageTile, Kj: &PolicyTile) -> Vec<Vec<u8>> {
     let mut mask = vec![vec![0u8; Kj.cols]; Qi.rows];
 
     for row in 0..Qi.rows {
@@ -102,6 +162,7 @@ fn flash_sign(
 
     for i in 0..Tr {
         let Q1 = &Q[i];
+        let mut Qi = MessageTile::zero(tile_size_r, Qi.dim);
 
         let mut Oi = SignatureTile::zero(tile_size_r, Qi.dim);
         let mut li = vec![0.0; tile_size_r];
@@ -111,12 +172,13 @@ fn flash_sign(
             let Kj = &K[j];
             let Vj = &V[j];
 
+            let mut Si = matmul(Qi, Kj); // [Br * Bc]
+
             // Policy max
             Si[row][col] *= mask[row][col] as f32; //where mask is 0 or 1
             // Policy max can be derived from evaluate_requests(...) and passed as an additional matrix input to flash_sign(...)
 
             // Softmax logits: Si = Qi * Kj to the power of T
-            let mut Si = matmul(Qi, Kj); // [Br * Bc]
             Si.apply_mask(&mask); // element-wise multiply
 
             // Recursive update: max
