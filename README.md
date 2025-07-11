@@ -1,14 +1,5 @@
 🏠 RealLiquid: My Dive Into RWA Finance
-Disclaimer: This is a Work in Progress. I have no financial background — unless you count accidentally investing in rent, brokers, European plane tickets, and gourmet coffee.
 
-After spending all my money on penthouse rentals and travel, I now live with my grandma and have decided to finally learn what RWA (Real World Assets), finance, and investing actually mean.
-This project exists because:
-I’ve never made a personal investment unless you count €16 cocktails or overpriced co-living "experiences".
-My father taught me to work for mysel at 15 by flipping houses — usually over a bottle of rakia with his friend Nasko.
-Nasko believes in tangible assets like power tools and tiles — not financial instruments.
-My mum loves finding deals at big-box stores and uses credit for convenience.
-My exposure to finance has mostly come from family stories and casual conversations, not structured learning.
-Until I built a few businesses and studied Investment Management at The Business Institute. 
 It was while I was wasting years of my day light with administration, bank clerks, customs, loan companies, bs investment vehicles, scaling business in the USA, that I realised, had blockchain been involved, some of these contracts can be smart contracts and some of these smart contracts can unlock horizontal scalability for entire networks of partners. 
 It made me want to discover how money actually works and to research into how current applications and rising markets could benefit from blockchain. 
 I decided to look into the connection between real estate and influencers and loans and that's how the concept of RealLiquid was born.
